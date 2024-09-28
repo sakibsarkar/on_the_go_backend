@@ -2,7 +2,7 @@ import cors from "cors";
 import express from "express";
 import morgan from "morgan";
 import router from "../src/app/routes/index";
-import errorMiddleware from "./app/middlewares/error";
+import globalErrorHandler from "./app/middlewares/error";
 import { notFound } from "./app/middlewares/not-found";
 const app = express();
 
@@ -22,6 +22,6 @@ app.get("/", (req, res) => {
 // 404 Handler
 app.use(notFound);
 
-app.use(errorMiddleware);
+app.use(globalErrorHandler);
 
 export default app;

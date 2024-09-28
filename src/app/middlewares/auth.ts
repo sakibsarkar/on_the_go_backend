@@ -41,6 +41,7 @@ export const isAuthenticatedUser = async (
 
     const payload = user.toObject();
     req.user = { ...payload, role: auth.role };
+    console.log(user);
 
     next();
   } catch (err: any) {
