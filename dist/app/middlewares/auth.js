@@ -42,6 +42,7 @@ const isAuthenticatedUser = (req, res, next) => __awaiter(void 0, void 0, void 0
         // console.log("user =======", user);
         const payload = user.toObject();
         req.user = Object.assign(Object.assign({}, payload), { role: auth.role });
+        console.log(user);
         next();
     }
     catch (err) {

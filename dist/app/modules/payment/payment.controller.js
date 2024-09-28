@@ -16,7 +16,6 @@ exports.failedPaymentController = exports.successPaymentController = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const catchAsyncError_1 = require("../../../utils/catchAsyncError");
 const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
-const booking_model_1 = __importDefault(require("../booking/booking.model"));
 const payment_service_1 = require("./payment.service");
 exports.successPaymentController = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const paymentInfoToken = req.query.pt;
@@ -32,8 +31,8 @@ exports.successPaymentController = (0, catchAsyncError_1.catchAsyncError)((req, 
             statusCode: 400,
         });
     }
-    const { amount, transactionId, slotId } = decode;
-    yield booking_model_1.default.findOneAndUpdate({ slot: slotId }, { payment: "paid" });
+    const { amount, transactionId, } = decode;
+    // await Booking.findOneAndUpdate({ slot: slotId }, { payment: "paid" });
     const result = yield payment_service_1.paymentService.createPayment(Number(amount), transactionId);
     res.send(result);
 }));

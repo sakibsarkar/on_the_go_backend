@@ -22,14 +22,6 @@ const userScheam = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
-    phone: {
-        type: String,
-        required: true,
-    },
-    address: {
-        type: String,
-        required: true,
-    },
     image: {
         type: String,
         required: false,

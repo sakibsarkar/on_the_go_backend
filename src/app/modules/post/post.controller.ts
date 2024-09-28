@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { JwtPayload } from "jsonwebtoken";
 import { catchAsyncError } from "../../../utils/catchAsyncError";
 import sendResponse from "../../../utils/sendResponse";
 import { sendImageToCloudinary } from "../../../utils/uploadFile";
@@ -35,13 +36,13 @@ export const uploadPostImage = catchAsyncError(async (req, res) => {
 });
 
 const createPost = catchAsyncError(async (req, res) => {
-  const { title, content, category, isPremium, images } = req.body;
+  const { title, content, categories, isPremium, images } = req.body;
   const user = req.user._id;
   const payload = {
     title,
     content,
-    category,
     images,
+    categories,
     isPremium: isPremium || false,
     user: user as string,
   } as IPost;
@@ -76,4 +77,38 @@ const getAllPosts = catchAsyncError(async (req, res) => {
   });
 });
 
-export const postController = { createPost, uploadPostImage,getAllPosts };
+const votePost = catchAsyncError(async (req, res) => {
+  const { postId } = req.params;
+  const { vote } = req.query;
+  const userId = (req.user as JwtPayload)._id;
+
+  const voteType = ["upvote", "downvote"];
+
+  if (!postId || !vote || !voteType.includes(vote as string)) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: 400,
+      message: "Invalid request",
+      data: null,
+    });
+  }
+
+  const result = await postService.votePost(
+    postId,
+    userId,
+    vote as "upvote" | "downvote"
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "post voted successfully",
+    data: result,
+  });
+});
+
+export const postController = {
+  createPost,
+  uploadPostImage,
+  getAllPosts,
+  votePost,
+};

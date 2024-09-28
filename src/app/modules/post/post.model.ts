@@ -17,8 +17,16 @@ const PostSchema = new mongoose.Schema(
     categories: {
       type: [Types.ObjectId],
       required: true,
+      ref: "Category",
     },
-
+    upvotes: {
+      type: [Types.ObjectId],
+      ref: "User",
+    },
+    downvotes: {
+      type: [Types.ObjectId],
+      ref: "User",
+    },
     isPremium: {
       type: Boolean,
       default: false,

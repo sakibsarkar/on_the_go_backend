@@ -28,6 +28,7 @@ exports.recoverPassword = exports.forgotPassword = exports.resetPassword = expor
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const catchAsyncError_1 = require("../../../utils/catchAsyncError");
 const jwtToken_1 = require("../../../utils/jwtToken");
 const sendMessage_1 = __importDefault(require("../../../utils/sendMessage"));
@@ -46,34 +47,59 @@ exports.authSateController = (0, catchAsyncError_1.catchAsyncError)((req, res) =
 }));
 exports.createUserController = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    const isExistCustomer = yield auth_model_1.default.findOne({ email: body.email });
-    if (isExistCustomer) {
-        return (0, sendResponse_1.default)(res, {
-            success: false,
-            data: null,
-            message: "A account already exist in this email",
+    const session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const isExistCustomer = yield auth_model_1.default.findOne({
+            email: body.email,
+        }).session(session);
+        if (isExistCustomer) {
+            yield session.abortTransaction();
+            session.endSession();
+            return (0, sendResponse_1.default)(res, {
+                success: false,
+                data: null,
+                message: "An account already exists with this email",
+            });
+        }
+        const { email, password } = body;
+        // Create authentication details
+        const auth = yield auth_model_1.default.create([{ email, password }], {
+            session,
+        });
+        // Create the user document linked to the auth record
+        const user = yield user_model_1.default.create([Object.assign(Object.assign({}, body), { auth: auth[0]._id })], {
+            session,
+        });
+        // Generate tokens
+        const token = (0, jwtToken_1.createAcessToken)({
+            email: auth[0].email,
+            id: auth[0]._id.toString(),
+            role: auth[0].role,
+        }, "1h");
+        const refreshToken = (0, jwtToken_1.createRefreshToken)({
+            email: auth[0].email,
+            id: auth[0]._id,
+            role: auth[0].role,
+        });
+        // Commit transaction
+        yield session.commitTransaction();
+        session.endSession();
+        // Send response
+        res.json({
+            data: user[0],
+            message: "User created successfully",
+            success: true,
+            accessToken: token,
+            refreshToken,
         });
     }
-    const { email, password } = body;
-    const auth = yield auth_model_1.default.create({ email, password });
-    const user = yield user_model_1.default.create(Object.assign(Object.assign({}, body), { auth: auth._id }));
-    const token = (0, jwtToken_1.createAcessToken)({
-        email: auth.email,
-        id: auth._id.toString(),
-        role: auth.role,
-    }, "1h");
-    const refreshToken = (0, jwtToken_1.createRefreshToken)({
-        email: auth.email,
-        id: auth._id,
-        role: auth.role,
-    });
-    res.json({
-        data: user,
-        message: "user created successfully",
-        success: true,
-        accessToken: token,
-        refreshToken,
-    });
+    catch (error) {
+        // Rollback transaction in case of error
+        yield session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
 }));
 exports.genereteAccessToken = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const getToken = req.header("Authorization");
@@ -89,7 +115,6 @@ exports.genereteAccessToken = (0, catchAsyncError_1.catchAsyncError)((req, res) 
         });
     }
     const refreshTokenSecret = process.env.JWT_REFRESH_SECRET;
-    console.log({ refreshToken, refreshTokenSecret });
     try {
         const decoded = jsonwebtoken_1.default.verify(refreshToken, refreshTokenSecret);
         const user = decoded.user;

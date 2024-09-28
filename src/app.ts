@@ -20,6 +20,7 @@ app.get("/", async (req, res) => {
   res.send("Hello from server");
 });
 // 404 Handler
+
 app.use(notFound);
 
 app.use(globalErrorHandler);

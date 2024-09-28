@@ -11,7 +11,7 @@ router.post(
   postController.createPost
 );
 router.get("/get", postController.getAllPosts);
-
+router.patch("/vote/:postId", isAuthenticatedUser, postController.votePost);
 const postRoute = router;
 
 export default postRoute;

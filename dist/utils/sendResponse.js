@@ -6,6 +6,7 @@ const sendResponse = (res, data) => {
         statusCode: data.statusCode || 200,
         message: data.message,
         data: data.data,
+        totalDoc: data.totalDoc,
     });
 };
 exports.default = sendResponse;

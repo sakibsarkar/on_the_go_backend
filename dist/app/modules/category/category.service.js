@@ -12,24 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const cors_1 = __importDefault(require("cors"));
-const express_1 = __importDefault(require("express"));
-const morgan_1 = __importDefault(require("morgan"));
-const index_1 = __importDefault(require("../src/app/routes/index"));
-const error_1 = __importDefault(require("./app/middlewares/error"));
-const not_found_1 = require("./app/middlewares/not-found");
-const app = (0, express_1.default)();
-// Middlewares
-app.use((0, cors_1.default)({
-    origin: "*",
-}));
-app.use(express_1.default.json());
-app.use((0, morgan_1.default)("dev"));
-app.use("/api/v1", index_1.default);
-app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.send("Hello from server");
-}));
-// 404 Handler
-app.use(not_found_1.notFound);
-app.use(error_1.default);
-exports.default = app;
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
+const category_model_1 = __importDefault(require("./category.model"));
+const createCategory = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield category_model_1.default.create(payload);
+    return result;
+});
+const getCategoriesByName = (name) => __awaiter(void 0, void 0, void 0, function* () {
+    const model = category_model_1.default.find();
+    const queryBuilder = new QueryBuilder_1.default(model, { searchTerm: name }).search([
+        "label",
+    ]);
+    const result = yield queryBuilder.modelQuery;
+    return result;
+});
+const categoryService = {
+    createCategory,
+    getCategoriesByName,
+};
+exports.default = categoryService;
