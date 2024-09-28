@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const PostSchema = new mongoose.Schema(
   {
@@ -14,14 +14,11 @@ const PostSchema = new mongoose.Schema(
     images: {
       type: [String],
     },
-    category: {
-      type: String,
+    categories: {
+      type: [Types.ObjectId],
       required: true,
     },
-    tags: {
-      type: [String],
-      default: [],
-    },
+
     isPremium: {
       type: Boolean,
       default: false,

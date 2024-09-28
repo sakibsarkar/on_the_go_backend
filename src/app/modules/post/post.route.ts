@@ -10,7 +10,7 @@ router.post(
   validSchema(postValidationSchema),
   postController.createPost
 );
-router.post("/get", postController.getAllPosts);
+router.get("/get", postController.getAllPosts);
 
 const postRoute = router;
 

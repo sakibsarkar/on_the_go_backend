@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 app.use("/api/v1", router);
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   res.send("Hello from server");
 });
 // 404 Handler

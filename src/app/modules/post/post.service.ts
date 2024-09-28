@@ -9,7 +9,9 @@ const createPost = async (payload: IPost) => {
 };
 
 const getAllPosts = async (query: IAnyObject) => {
-  const queryModel = new QueryBuilder(Post.find(), query)
+  const model = Post.find().populate("user").populate("categories");
+
+  const queryModel = new QueryBuilder(model, query)
     .fields()
     .paginate()
     .sort()
@@ -22,6 +24,7 @@ const getAllPosts = async (query: IAnyObject) => {
 };
 
 const postService = {
-  createPost,getAllPosts
+  createPost,
+  getAllPosts,
 };
 export default postService;
