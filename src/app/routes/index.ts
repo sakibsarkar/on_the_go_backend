@@ -2,6 +2,7 @@ import express from "express";
 import authRoute from "../modules/auth/auth.route";
 
 import categoryRoute from "../modules/category/category.route";
+import commentRoute from "../modules/comments/comment.route";
 import paymentRoute from "../modules/payment/payment.route";
 import postRoute from "../modules/post/post.route";
 import userRoute from "../modules/user/user.route";
@@ -29,6 +30,10 @@ const moduleRoute = [
   {
     path: "/category",
     route: categoryRoute,
+  },
+  {
+    path: "/comment",
+    route: commentRoute,
   },
 ];
 
