@@ -72,7 +72,7 @@ const getAllPosts = async (query: IAnyObject) => {
     .paginate()
     .sort()
     .filter()
-    .search(["title"]);
+    .search(["title", "content"]);
 
   const totalDoc = await queryModel.count();
   const result = await queryModel.modelQuery;
