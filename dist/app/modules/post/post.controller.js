@@ -66,21 +66,12 @@ const createPost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaite
 const getAllPosts = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = req.query;
     const { result, totalDoc } = yield post_service_1.default.getAllPosts(query);
-    if (result.length > 0) {
-        return (0, sendResponse_1.default)(res, {
-            success: true,
-            statusCode: 200,
-            message: "All posts retrieved successfully",
-            data: result,
-            totalDoc,
-        });
-    }
     (0, sendResponse_1.default)(res, {
         success: false,
-        statusCode: 404,
+        statusCode: 200,
         message: "No Data Found",
-        data: [],
-        totalDoc: 0,
+        data: result,
+        totalDoc,
     });
 }));
 const votePost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

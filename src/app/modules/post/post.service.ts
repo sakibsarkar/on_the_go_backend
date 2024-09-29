@@ -56,7 +56,16 @@ const votePost = async (
 };
 
 const getAllPosts = async (query: IAnyObject) => {
-  const model = Post.find().populate("user").populate("categories");
+  let model = Post.find().populate("user").populate("categories");
+
+  console.log(query.categories, true);
+  if (query.categories) {
+    const ids = query.categories
+      .split(",")
+      .map((id: string) => new mongoose.Types.ObjectId(id));
+    model = model.find({ categories: { $in: ids } });
+  }
+  delete query.categories;
 
   const queryModel = new QueryBuilder(model, query)
     .fields()

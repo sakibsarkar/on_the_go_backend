@@ -7,6 +7,7 @@ const post_controller_1 = require("./post.controller");
 const post_validation_1 = require("./post.validation");
 const router = (0, express_1.Router)();
 router.post("/create", auth_1.isAuthenticatedUser, (0, validator_1.validSchema)(post_validation_1.postValidationSchema), post_controller_1.postController.createPost);
+router.post("/upload-image", auth_1.isAuthenticatedUser, post_controller_1.postController.uploadPostImage);
 router.get("/get", post_controller_1.postController.getAllPosts);
 router.patch("/vote/:postId", auth_1.isAuthenticatedUser, post_controller_1.postController.votePost);
 const postRoute = router;

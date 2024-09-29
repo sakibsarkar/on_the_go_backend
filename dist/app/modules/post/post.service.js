@@ -48,6 +48,11 @@ const votePost = (postId, userId, vote) => __awaiter(void 0, void 0, void 0, fun
             post.upvotes.pull(userObjectId);
         }
     }
+    // Update the upvoteCount and downvoteCount after updating the arrays
+    post.upvoteCount = post.upvotes.length;
+    post.downvoteCount = post.downvotes.length;
+    // Save the post after updating counts
+    yield post.save();
     const result = yield post.save();
     return result;
 });
@@ -59,9 +64,9 @@ const getAllPosts = (query) => __awaiter(void 0, void 0, void 0, function* () {
         .sort()
         .filter()
         .search(["title"]);
-    const totalDoc = (yield queryModel.count()).totalCount;
+    const totalDoc = yield queryModel.count();
     const result = yield queryModel.modelQuery;
-    return { result, totalDoc };
+    return { result, totalDoc: totalDoc.totalCount };
 });
 const postService = {
     createPost,

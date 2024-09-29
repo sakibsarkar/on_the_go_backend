@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const uploadFile_1 = require("../../../utils/uploadFile");
+const cloudinaryMulter_config_1 = require("../../config/cloudinaryMulter.config");
 const auth_1 = require("../../middlewares/auth");
 const user_controller_1 = require("./user.controller");
 const router = (0, express_1.Router)();
 router.get("/all", auth_1.isAuthenticatedUser, (0, auth_1.authorizeRoles)("admin"), user_controller_1.getAllUser);
 router.put("/update", auth_1.isAuthenticatedUser, user_controller_1.updateUserInfo);
-router.put("/update-profile-image", auth_1.isAuthenticatedUser, uploadFile_1.upload.single("file"), user_controller_1.updateUserProfileImage);
+router.put("/update-profile-image", auth_1.isAuthenticatedUser, cloudinaryMulter_config_1.multerUpload.single("file"), user_controller_1.updateUserProfileImage);
 const userRoute = router;
 exports.default = userRoute;

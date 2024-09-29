@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllUser = exports.updateUserInfo = exports.updateUserProfileImage = void 0;
 const catchAsyncError_1 = require("../../../utils/catchAsyncError");
 const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
-const uploadFile_1 = require("../../../utils/uploadFile");
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const user_model_1 = __importDefault(require("./user.model"));
 exports.updateUserProfileImage = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,8 +28,7 @@ exports.updateUserProfileImage = (0, catchAsyncError_1.catchAsyncError)((req, re
             statusCode: 404,
         });
     }
-    const uploadRes = yield (0, uploadFile_1.sendImageToCloudinary)(file.filename, file.path);
-    const url = uploadRes.secure_url;
+    const url = file.path;
     if (!url) {
         return (0, sendResponse_1.default)(res, {
             message: "failed to upload image",

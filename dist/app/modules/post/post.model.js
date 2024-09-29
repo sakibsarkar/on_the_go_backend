@@ -59,6 +59,14 @@ const PostSchema = new mongoose_1.default.Schema({
         ref: "User",
         required: true,
     },
+    upvoteCount: {
+        type: Number,
+        default: 0,
+    },
+    downvoteCount: {
+        type: Number,
+        default: 0,
+    },
 }, { timestamps: true });
 const Post = mongoose_1.default.model("Post", PostSchema);
 exports.default = Post;
