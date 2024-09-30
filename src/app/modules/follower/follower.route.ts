@@ -5,12 +5,17 @@ import { followerController } from "./follower.controller";
 const router = Router();
 
 router.get("/get", isAuthenticatedUser, followerController.getFollwers);
+router.get(
+  "/get/following",
+  isAuthenticatedUser,
+  followerController.getFollwing
+);
 router.post(
   "/create",
   isAuthenticatedUser,
   followerController.createFollowerConstroller
 );
-router.delete(
+router.put(
   "/delete",
   isAuthenticatedUser,
   followerController.deleteFollowerController

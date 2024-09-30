@@ -1,13 +1,13 @@
 import { catchAsyncError } from "../../../utils/catchAsyncError";
 import sendResponse from "../../../utils/sendResponse";
-import { followerService } from "./Follower.service";
+import { followerService } from "./follower.service";
 
 const createFollowerConstroller = catchAsyncError(async (req, res) => {
   const user = req.user._id;
   const { follower } = req.body;
   const payload = {
-    user,
-    follower,
+    user: follower,
+    follower: user,
   };
   const result = await followerService.createFollower(payload);
 
@@ -23,8 +23,8 @@ const deleteFollowerController = catchAsyncError(async (req, res) => {
   const user = req.user._id;
   const { follower } = req.body;
   const payload = {
-    user,
-    follower,
+    user: follower,
+    follower: user,
   };
   const result = await followerService.deleteFollower(payload);
 
@@ -42,7 +42,18 @@ const getFollwers = catchAsyncError(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "No Data Found",
+    message: "Data retrive successfully",
+    data: result,
+  });
+});
+
+const getFollwing = catchAsyncError(async (req, res) => {
+  const user = req.user._id;
+  const result = await followerService.getFollowingList(user);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Data retrive successfully",
     data: result,
   });
 });
@@ -51,4 +62,5 @@ export const followerController = {
   createFollowerConstroller,
   deleteFollowerController,
   getFollwers,
+  getFollwing,
 };

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { multerUpload } from "../../config/cloudinaryMulter.config";
 import { isAuthenticatedUser } from "../../middlewares/auth";
 import { validSchema } from "../../middlewares/validator";
 import { postController } from "./post.controller";
@@ -13,6 +14,7 @@ router.post(
 router.post(
   "/upload-image",
   isAuthenticatedUser,
+  multerUpload.single("file"),
   postController.uploadPostImage
 );
 router.get("/get", postController.getAllPosts);
