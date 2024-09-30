@@ -11,6 +11,12 @@ router.post(
   validSchema(postValidationSchema),
   postController.createPost
 );
+
+router.delete(
+  "/delete/:postId",
+  isAuthenticatedUser,
+  postController.deletePost
+);
 router.post(
   "/upload-image",
   isAuthenticatedUser,
