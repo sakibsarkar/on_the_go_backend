@@ -1,4 +1,6 @@
+import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
+import { IAnyObject } from "../../interface/error";
 import Post from "../post/post.model";
 import { IComment } from "./comment.interface";
 import Comment from "./comments.model";
@@ -13,17 +15,22 @@ const createComment = async (comment: IComment) => {
   await isPostExists.save();
   return result;
 };
-const getCommentsByPostId = async (postId: string) => {
+const getCommentsByPostId = async (postId: string, query: IAnyObject) => {
   const isPostExists = await Post.findById(postId);
   if (!isPostExists) {
     throw new AppError(404, "Post not found");
   }
 
-  const result = await Comment.find({ post: isPostExists._id })
+  const model = Comment.find({ post: isPostExists._id })
     .populate("user")
     .sort("-createdAt");
 
-  return result;
+  const queryBuilder = new QueryBuilder(model, query).paginate();
+
+  const totalDoc = await queryBuilder.count();
+  const result = await queryBuilder.modelQuery;
+
+  return { result, totalDoc: totalDoc.totalCount };
 };
 
 const updateComment = async (
