@@ -72,6 +72,7 @@ const getAllPosts = async (query: IAnyObject, user: TUser | null) => {
   } else {
     model = model.find({ premium: false });
   }
+  delete query.premium;
 
   const queryModel = new QueryBuilder(model, query)
     .fields()

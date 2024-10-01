@@ -6,6 +6,7 @@ import commentRoute from "../modules/comments/comment.route";
 import followerRoute from "../modules/follower/follower.route";
 import paymentRoute from "../modules/payment/payment.route";
 import postRoute from "../modules/post/post.route";
+import statisticsRoute from "../modules/statistics/statistics.route";
 import userRoute from "../modules/user/user.route";
 
 // import userRoutes from "../modules/user/user.route";
@@ -39,6 +40,10 @@ const moduleRoute = [
   {
     path: "/follower",
     route: followerRoute,
+  },
+  {
+    path: "/statistics",
+    route: statisticsRoute,
   },
 ];
 
