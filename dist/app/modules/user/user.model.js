@@ -22,6 +22,10 @@ const userScheam = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    isPremium: {
+        type: Boolean,
+        default: false,
+    },
     image: {
         type: String,
         required: false,

@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { multerUpload } from "../../config/cloudinaryMulter.config";
-import { isAuthenticatedUser } from "../../middlewares/auth";
+import {
+  isAuthenticatedUser,
+  isAuthenticatedUserOptional,
+} from "../../middlewares/auth";
 import { validSchema } from "../../middlewares/validator";
 import { postController } from "./post.controller";
 import { postValidationSchema } from "./post.validation";
@@ -23,7 +26,7 @@ router.post(
   multerUpload.single("file"),
   postController.uploadPostImage
 );
-router.get("/get", postController.getAllPosts);
+router.get("/get", isAuthenticatedUserOptional, postController.getAllPosts);
 router.patch("/vote/:postId", isAuthenticatedUser, postController.votePost);
 const postRoute = router;
 

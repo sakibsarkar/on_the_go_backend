@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.postController = exports.uploadPostImage = void 0;
 const catchAsyncError_1 = require("../../../utils/catchAsyncError");
 const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
-const uploadFile_1 = require("../../../utils/uploadFile");
 const post_service_1 = __importDefault(require("./post.service"));
 exports.uploadPostImage = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
@@ -27,8 +26,7 @@ exports.uploadPostImage = (0, catchAsyncError_1.catchAsyncError)((req, res) => _
             statusCode: 404,
         });
     }
-    const uploadRes = yield (0, uploadFile_1.sendImageToCloudinary)(file.filename, file.path);
-    const url = uploadRes.secure_url;
+    const url = file.path;
     if (!url) {
         return (0, sendResponse_1.default)(res, {
             message: "failed to upload image",
@@ -45,19 +43,29 @@ exports.uploadPostImage = (0, catchAsyncError_1.catchAsyncError)((req, res) => _
     });
 }));
 const createPost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { title, content, categories, isPremium, images } = req.body;
+    const { content, categories, images } = req.body;
     const user = req.user._id;
     const payload = {
-        title,
         content,
         images,
         categories,
-        isPremium: isPremium || false,
+        isPremium: false,
         user: user,
     };
     const result = yield post_service_1.default.createPost(payload);
     (0, sendResponse_1.default)(res, {
         message: "post created successfully",
+        success: true,
+        data: result,
+        statusCode: 200,
+    });
+}));
+const deletePost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { postId } = req.params;
+    const user = req.user;
+    const result = yield post_service_1.default.deletePost(postId, user._id);
+    (0, sendResponse_1.default)(res, {
+        message: "post deleted successfully",
         success: true,
         data: result,
         statusCode: 200,
@@ -98,6 +106,7 @@ const votePost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(
 exports.postController = {
     createPost,
     uploadPostImage: exports.uploadPostImage,
+    deletePost,
     getAllPosts,
     votePost,
 };

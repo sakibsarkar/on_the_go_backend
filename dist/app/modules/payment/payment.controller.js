@@ -31,16 +31,14 @@ exports.successPaymentController = (0, catchAsyncError_1.catchAsyncError)((req, 
             statusCode: 400,
         });
     }
-    const { amount, transactionId, } = decode;
-    // await Booking.findOneAndUpdate({ slot: slotId }, { payment: "paid" });
-    const result = yield payment_service_1.paymentService.createPayment(Number(amount), transactionId);
+    const { amount, transactionId, userId } = decode;
+    const result = yield payment_service_1.paymentService.createPayment(Number(amount), transactionId, userId);
     res.send(result);
 }));
 exports.failedPaymentController = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const paymentInfoToken = req.query.pt;
-    let decode;
     try {
-        decode = jsonwebtoken_1.default.verify(paymentInfoToken, process.env.SIGNATURE_KEY);
+        jsonwebtoken_1.default.verify(paymentInfoToken, process.env.SIGNATURE_KEY);
     }
     catch (error) {
         (0, sendResponse_1.default)(res, {
@@ -50,7 +48,6 @@ exports.failedPaymentController = (0, catchAsyncError_1.catchAsyncError)((req, r
             statusCode: 400,
         });
     }
-    const { slotId } = decode;
-    const result = yield payment_service_1.paymentService.failedPayment(slotId);
+    const result = yield payment_service_1.paymentService.failedPayment();
     res.send(result);
 }));

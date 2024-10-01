@@ -25,6 +25,15 @@ const createCategory = (0, catchAsyncError_1.catchAsyncError)((req, res) => __aw
         statusCode: 200,
     });
 }));
+const getCategories = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield category_service_1.default.getCategories(req.query);
+    (0, sendResponse_1.default)(res, {
+        message: "category retrieved successfully",
+        success: true,
+        data: result,
+        statusCode: 200,
+    });
+}));
 const getCategoriesByName = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const label = req.params.label;
     const result = yield category_service_1.default.getCategoriesByName(label);
@@ -38,4 +47,5 @@ const getCategoriesByName = (0, catchAsyncError_1.catchAsyncError)((req, res) =>
 exports.categoryController = {
     createCategory,
     getCategoriesByName,
+    getCategories
 };

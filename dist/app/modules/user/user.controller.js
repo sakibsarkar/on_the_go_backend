@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllUser = exports.updateUserInfo = exports.updateUserProfileImage = void 0;
+exports.generateVerifyAccountPaymentUrl = exports.isCapableForPremium = exports.getAllUser = exports.updateUserInfo = exports.updateUserProfileImage = void 0;
 const catchAsyncError_1 = require("../../../utils/catchAsyncError");
 const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
+const payment_utils_1 = require("../payment/payment.utils");
+const post_model_1 = __importDefault(require("../post/post.model"));
 const user_model_1 = __importDefault(require("./user.model"));
 exports.updateUserProfileImage = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
@@ -96,5 +98,40 @@ exports.getAllUser = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awai
         success: true,
         totalDoc: totalDoc.totalCount,
         message: "successfully get all user",
+    });
+}));
+exports.isCapableForPremium = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user._id;
+    const post = yield post_model_1.default.findOne({ user: user, upvoteCount: { $gt: 0 } });
+    (0, sendResponse_1.default)(res, {
+        data: post ? true : false,
+        success: true,
+        message: "successfully check user capability for premium",
+    });
+}));
+exports.generateVerifyAccountPaymentUrl = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const post = yield post_model_1.default.findOne({ user: user, upvoteCount: { $gt: 0 } });
+    if (!post) {
+        return (0, sendResponse_1.default)(res, {
+            message: "Not capled for premium",
+            success: false,
+            data: null,
+            statusCode: 404,
+        });
+    }
+    const payload = {
+        amount: 200,
+        cus_add: "N/A",
+        cus_name: user.firstName + " " + user.lastName,
+        cus_phone: "N/A",
+        cus_email: user.email,
+        tran_id: String(Date.now()),
+    };
+    const result = yield (0, payment_utils_1.initiatePayment)(payload, user._id);
+    (0, sendResponse_1.default)(res, {
+        data: result,
+        success: true,
+        message: "successfully get payment url",
     });
 }));

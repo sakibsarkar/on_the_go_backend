@@ -24,52 +24,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const PostSchema = new mongoose_1.default.Schema({
-    content: {
+const CommentSchema = new mongoose_1.default.Schema({
+    user: {
+        type: mongoose_1.Types.ObjectId,
+        required: true,
+        ref: "User",
+    },
+    comment: {
         type: String,
         required: true,
     },
-    images: {
-        type: [String],
-    },
-    categories: {
-        type: [mongoose_1.Types.ObjectId],
+    post: {
+        type: mongoose_1.Types.ObjectId,
         required: true,
-        ref: "Category",
-    },
-    upvotes: {
-        type: [mongoose_1.Types.ObjectId],
-        ref: "User",
-    },
-    downvotes: {
-        type: [mongoose_1.Types.ObjectId],
-        ref: "User",
-    },
-    isPremium: {
-        type: Boolean,
-        default: false,
-    },
-    user: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
-    upvoteCount: {
-        type: Number,
-        default: 0,
-    },
-    downvoteCount: {
-        type: Number,
-        default: 0,
-    },
-    commentCount: {
-        type: Number,
-        default: 0,
-    },
-    premium: {
-        type: Boolean,
-        default: false,
+        ref: "Post",
     },
 }, { timestamps: true });
-const Post = mongoose_1.default.model("Post", PostSchema);
-exports.default = Post;
+const Comment = mongoose_1.default.model("Comment", CommentSchema);
+exports.default = Comment;

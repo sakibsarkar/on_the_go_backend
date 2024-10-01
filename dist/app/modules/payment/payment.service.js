@@ -15,12 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.paymentService = exports.failedPayment = exports.createPayment = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
+const user_model_1 = __importDefault(require("../user/user.model"));
 const payment_model_1 = __importDefault(require("./payment.model"));
-const createPayment = (amount, transactionId) => __awaiter(void 0, void 0, void 0, function* () {
+const createPayment = (amount, transactionId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     yield payment_model_1.default.create({
         amount: amount,
         transactionId,
         status: "Paid",
+    });
+    yield user_model_1.default.findByIdAndUpdate(userId, {
+        isPremium: true,
     });
     const filePath = (0, path_1.join)(__dirname, "../../templates/success.html");
     let file = (0, fs_1.readFileSync)(filePath, "utf-8");
@@ -28,12 +32,7 @@ const createPayment = (amount, transactionId) => __awaiter(void 0, void 0, void 
     return file;
 });
 exports.createPayment = createPayment;
-const failedPayment = (slot) => __awaiter(void 0, void 0, void 0, function* () {
-    // await Booking.findOneAndUpdate({ slot }, { $set: { status: "cancel" } });
-    // await Slot.findOneAndUpdate(
-    //   { _id: slot },
-    //   { $set: { isBooked: "available" } }
-    // );
+const failedPayment = () => __awaiter(void 0, void 0, void 0, function* () {
     const filePath = (0, path_1.join)(__dirname, "../../templates/error.html");
     let file = (0, fs_1.readFileSync)(filePath, "utf-8");
     file = file.replace("{{link}}", "https://aqua-clean.vercel.app/");

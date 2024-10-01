@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 const mongoose_1 = __importDefault(require("mongoose"));
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
 const post_model_1 = __importDefault(require("./post.model"));
 const createPost = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield post_model_1.default.create(payload);
@@ -57,20 +58,60 @@ const votePost = (postId, userId, vote) => __awaiter(void 0, void 0, void 0, fun
     return result;
 });
 const getAllPosts = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const model = post_model_1.default.find().populate("user").populate("categories");
+    let model = post_model_1.default.find().populate("user").populate("categories");
+    console.log(query.categories, true);
+    if (query.categories) {
+        const ids = query.categories
+            .split(",")
+            .map((id) => new mongoose_1.default.Types.ObjectId(id));
+        model = model.find({ categories: { $in: ids } });
+    }
+    delete query.categories;
     const queryModel = new QueryBuilder_1.default(model, query)
         .fields()
         .paginate()
         .sort()
         .filter()
-        .search(["title"]);
+        .search(["title", "content"]);
     const totalDoc = yield queryModel.count();
     const result = yield queryModel.modelQuery;
     return { result, totalDoc: totalDoc.totalCount };
 });
+const updatePost = (id, payload, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const isExists = yield post_model_1.default.findById(id);
+    if (!isExists) {
+        throw new AppError_1.default(404, "Post not found");
+    }
+    if (isExists.user.toString() !== user.toString()) {
+        throw new AppError_1.default(403, "Unauthorized access");
+    }
+    const updatePayload = {};
+    ["content", "images", "categories"].forEach((key) => {
+        // @ts-ignore
+        if (payload[key]) {
+            // @ts-ignore
+            updatePayload[key] = payload[key];
+        }
+    });
+    const result = yield post_model_1.default.findByIdAndUpdate(id, updatePayload, { new: true });
+    return result;
+});
+const deletePost = (id, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const isExists = yield post_model_1.default.findById(id);
+    if (!isExists) {
+        throw new AppError_1.default(404, "Post not found");
+    }
+    if (isExists.user.toString() !== user.toString()) {
+        throw new AppError_1.default(403, "Unauthorized access");
+    }
+    const result = yield post_model_1.default.findByIdAndDelete(isExists._id);
+    return result;
+});
 const postService = {
     createPost,
+    deletePost,
     getAllPosts,
     votePost,
+    updatePost,
 };
 exports.default = postService;

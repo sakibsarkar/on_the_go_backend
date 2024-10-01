@@ -18,6 +18,15 @@ const createCategory = (payload) => __awaiter(void 0, void 0, void 0, function* 
     const result = yield category_model_1.default.create(payload);
     return result;
 });
+const getCategories = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const model = category_model_1.default.find();
+    const queryBuilder = new QueryBuilder_1.default(model, query)
+        .search(["label"])
+        .paginate()
+        .sort();
+    const result = yield queryBuilder.modelQuery;
+    return result;
+});
 const getCategoriesByName = (name) => __awaiter(void 0, void 0, void 0, function* () {
     const model = category_model_1.default.find();
     const queryBuilder = new QueryBuilder_1.default(model, { searchTerm: name }).search([
@@ -27,7 +36,7 @@ const getCategoriesByName = (name) => __awaiter(void 0, void 0, void 0, function
     return result;
 });
 const categoryService = {
-    createCategory,
+    createCategory, getCategories,
     getCategoriesByName,
 };
 exports.default = categoryService;
