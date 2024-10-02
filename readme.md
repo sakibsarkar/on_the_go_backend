@@ -1,4 +1,4 @@
-# Aqua clean Server
+# On the go Server
 
 ## Introduction
 
@@ -21,8 +21,7 @@ Make sure you have the following software installed on your machine:
 First, clone the repository using the following command:
 
 ```
-git clone https://github.com/sakibsarkar/mogoose_carwash.git
-
+git clone https://github.com/sakibsarkar/on_the_go_backend.git
 ```
 
 ### Installing Dependencies
