@@ -57,9 +57,8 @@ const votePost = (postId, userId, vote) => __awaiter(void 0, void 0, void 0, fun
     const result = yield post.save();
     return result;
 });
-const getAllPosts = (query) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllPosts = (query, user) => __awaiter(void 0, void 0, void 0, function* () {
     let model = post_model_1.default.find().populate("user").populate("categories");
-    console.log(query.categories, true);
     if (query.categories) {
         const ids = query.categories
             .split(",")
@@ -67,6 +66,13 @@ const getAllPosts = (query) => __awaiter(void 0, void 0, void 0, function* () {
         model = model.find({ categories: { $in: ids } });
     }
     delete query.categories;
+    if (query.premium && user && user.isPremium) {
+        model.find({ premium: true });
+    }
+    else {
+        model = model.find({ premium: false });
+    }
+    delete query.premium;
     const queryModel = new QueryBuilder_1.default(model, query)
         .fields()
         .paginate()
@@ -76,6 +82,12 @@ const getAllPosts = (query) => __awaiter(void 0, void 0, void 0, function* () {
     const totalDoc = yield queryModel.count();
     const result = yield queryModel.modelQuery;
     return { result, totalDoc: totalDoc.totalCount };
+});
+const getPostById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield post_model_1.default.findById(id)
+        .populate("user")
+        .populate("categories");
+    return result;
 });
 const updatePost = (id, payload, user) => __awaiter(void 0, void 0, void 0, function* () {
     const isExists = yield post_model_1.default.findById(id);
@@ -101,7 +113,9 @@ const deletePost = (id, user) => __awaiter(void 0, void 0, void 0, function* () 
     if (!isExists) {
         throw new AppError_1.default(404, "Post not found");
     }
-    if (isExists.user.toString() !== user.toString()) {
+    if (isExists.user.toString() !== user._id.toString() &&
+        user.role !== "admin") {
+        ``;
         throw new AppError_1.default(403, "Unauthorized access");
     }
     const result = yield post_model_1.default.findByIdAndDelete(isExists._id);
@@ -112,6 +126,7 @@ const postService = {
     deletePost,
     getAllPosts,
     votePost,
+    getPostById,
     updatePost,
 };
 exports.default = postService;

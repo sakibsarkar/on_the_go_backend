@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
 const category_model_1 = __importDefault(require("./category.model"));
 const createCategory = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield category_model_1.default.create(payload);
@@ -35,8 +36,18 @@ const getCategoriesByName = (name) => __awaiter(void 0, void 0, void 0, function
     const result = yield queryBuilder.modelQuery;
     return result;
 });
+const deleteCategory = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const isExists = yield category_model_1.default.findById(id);
+    if (!isExists) {
+        throw new AppError_1.default(404, "Category not found");
+    }
+    const result = yield category_model_1.default.findByIdAndDelete(isExists._id);
+    return result;
+});
 const categoryService = {
-    createCategory, getCategories,
+    createCategory,
+    getCategories,
     getCategoriesByName,
+    deleteCategory,
 };
 exports.default = categoryService;

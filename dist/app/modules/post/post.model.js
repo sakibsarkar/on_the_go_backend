@@ -45,10 +45,6 @@ const PostSchema = new mongoose_1.default.Schema({
         type: [mongoose_1.Types.ObjectId],
         ref: "User",
     },
-    isPremium: {
-        type: Boolean,
-        default: false,
-    },
     user: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",

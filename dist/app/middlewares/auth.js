@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authorizeRoles = exports.isAuthenticatedUser = void 0;
+exports.authorizeRoles = exports.isAuthenticatedUserOptional = exports.isAuthenticatedUser = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const AppError_1 = __importDefault(require("../errors/AppError"));
 const auth_model_1 = __importDefault(require("../modules/auth/auth.model"));
@@ -49,6 +49,38 @@ const isAuthenticatedUser = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.isAuthenticatedUser = isAuthenticatedUser;
+const isAuthenticatedUserOptional = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    try {
+        const getToken = req.header("Authorization");
+        if (!getToken) {
+            return next();
+        }
+        const token = getToken.split(" ")[1];
+        if (!token || token === "undifined") {
+            return next();
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_ACCESS_SECRET);
+        if (!decoded)
+            return res.status(401).json({ message: "Invalid Authentication." });
+        const user = yield user_model_1.default.findOne({
+            auth: (_b = decoded === null || decoded === void 0 ? void 0 : decoded.user) === null || _b === void 0 ? void 0 : _b.id,
+        });
+        if (!user)
+            return next();
+        const auth = yield auth_model_1.default.findOne({ email: user.email });
+        if (!auth)
+            return next();
+        const payload = user.toObject();
+        req.user = Object.assign(Object.assign({}, payload), { role: auth.role });
+        next();
+    }
+    catch (err) {
+        // If there's an error (like token verification fails), return 401
+        return res.status(401).json({ message: err.message });
+    }
+});
+exports.isAuthenticatedUserOptional = isAuthenticatedUserOptional;
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         var _a, _b;

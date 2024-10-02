@@ -86,11 +86,9 @@ exports.getAllUser = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awai
         path: "auth",
         select: "role",
     });
-    const build = new QueryBuilder_1.default(query, req.query).search([
-        "firstName",
-        "lastName",
-        "email",
-    ]);
+    const build = new QueryBuilder_1.default(query, req.query)
+        .search(["firstName", "lastName", "email"])
+        .paginate();
     const totalDoc = yield build.count();
     const result = yield build.modelQuery;
     res.json({

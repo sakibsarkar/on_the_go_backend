@@ -10,6 +10,7 @@ const comment_route_1 = __importDefault(require("../modules/comments/comment.rou
 const follower_route_1 = __importDefault(require("../modules/follower/follower.route"));
 const payment_route_1 = __importDefault(require("../modules/payment/payment.route"));
 const post_route_1 = __importDefault(require("../modules/post/post.route"));
+const statistics_route_1 = __importDefault(require("../modules/statistics/statistics.route"));
 const user_route_1 = __importDefault(require("../modules/user/user.route"));
 // import userRoutes from "../modules/user/user.route";
 const router = express_1.default.Router();
@@ -41,6 +42,10 @@ const moduleRoute = [
     {
         path: "/follower",
         route: follower_route_1.default,
+    },
+    {
+        path: "/statistics",
+        route: statistics_route_1.default,
     },
 ];
 moduleRoute.forEach((route) => router.use(route.path, route.route));

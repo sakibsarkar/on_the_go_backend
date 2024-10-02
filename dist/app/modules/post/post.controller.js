@@ -43,13 +43,22 @@ exports.uploadPostImage = (0, catchAsyncError_1.catchAsyncError)((req, res) => _
     });
 }));
 const createPost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { content, categories, images } = req.body;
+    const { content, categories, images, premium } = req.body;
     const user = req.user._id;
+    if (premium && !req.user.isPremium) {
+        (0, sendResponse_1.default)(res, {
+            success: false,
+            data: null,
+            message: "you need to subscribe to premium",
+            statusCode: 400,
+        });
+        return;
+    }
     const payload = {
         content,
         images,
         categories,
-        isPremium: false,
+        premium: Boolean(premium),
         user: user,
     };
     const result = yield post_service_1.default.createPost(payload);
@@ -63,7 +72,7 @@ const createPost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaite
 const deletePost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { postId } = req.params;
     const user = req.user;
-    const result = yield post_service_1.default.deletePost(postId, user._id);
+    const result = yield post_service_1.default.deletePost(postId, user);
     (0, sendResponse_1.default)(res, {
         message: "post deleted successfully",
         success: true,
@@ -73,13 +82,24 @@ const deletePost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaite
 }));
 const getAllPosts = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = req.query;
-    const { result, totalDoc } = yield post_service_1.default.getAllPosts(query);
+    const user = req.user;
+    const { result, totalDoc } = yield post_service_1.default.getAllPosts(query, user);
     (0, sendResponse_1.default)(res, {
         success: false,
         statusCode: 200,
         message: "No Data Found",
         data: result,
         totalDoc,
+    });
+}));
+const getPostById = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield post_service_1.default.getPostById(id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Data retrieved successfully",
+        data: result,
     });
 }));
 const votePost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -109,4 +129,5 @@ exports.postController = {
     deletePost,
     getAllPosts,
     votePost,
+    getPostById,
 };
