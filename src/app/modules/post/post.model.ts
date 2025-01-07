@@ -14,24 +14,12 @@ const PostSchema = new mongoose.Schema(
       required: true,
       ref: "Category",
     },
-    upvotes: {
-      type: [Types.ObjectId],
-      ref: "User",
-    },
-    downvotes: {
-      type: [Types.ObjectId],
-      ref: "User",
-    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    upvoteCount: {
-      type: Number,
-      default: 0,
-    },
-    downvoteCount: {
+    reactionCount: {
       type: Number,
       default: 0,
     },

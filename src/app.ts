@@ -17,6 +17,7 @@ app.use(morgan("dev"));
 
 app.use("/api/v1", router);
 app.get("/", async (req, res) => {
+  // postController.getAllPosts(req, res);
   res.send("Hello from server");
 });
 // 404 Handler

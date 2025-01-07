@@ -28,7 +28,6 @@ router.post(
 );
 router.get("/get", isAuthenticatedUserOptional, postController.getAllPosts);
 router.get("/get/:id", postController.getPostById);
-router.patch("/vote/:postId", isAuthenticatedUser, postController.votePost);
 const postRoute = router;
 
 export default postRoute;

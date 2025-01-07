@@ -1,12 +1,12 @@
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import { IAnyObject } from "../../interface/error";
-import Post from "../post/post.model";
+import Reaction from "../post/post.model";
 import { IComment } from "./comment.interface";
 import Comment from "./comments.model";
 
 const createComment = async (comment: IComment) => {
-  const isPostExists = await Post.findById(comment.post);
+  const isPostExists = await Reaction.findById(comment.post);
   if (!isPostExists) {
     throw new AppError(404, "Post not found");
   }
@@ -16,7 +16,7 @@ const createComment = async (comment: IComment) => {
   return result;
 };
 const getCommentsByPostId = async (postId: string, query: IAnyObject) => {
-  const isPostExists = await Post.findById(postId);
+  const isPostExists = await Reaction.findById(postId);
   if (!isPostExists) {
     throw new AppError(404, "Post not found");
   }
@@ -47,7 +47,7 @@ const updateComment = async (
     throw new Error("Unauthorized access");
   }
 
-  const isPostExists = await Post.findById(comment.post);
+  const isPostExists = await Reaction.findById(comment.post);
   if (!isPostExists) {
     throw new Error("Post not found");
   }
@@ -75,7 +75,7 @@ const deleteComment = async (id: string, userId: string) => {
     throw new AppError(403, "Unauthorized access");
   }
 
-  const isPostExists = await Post.findById(comment.post);
+  const isPostExists = await Reaction.findById(comment.post);
   if (!isPostExists) {
     throw new AppError(404, "Post not found");
   }

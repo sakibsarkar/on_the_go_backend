@@ -101,40 +101,10 @@ const getPostById = catchAsyncError(async (req, res) => {
   });
 });
 
-const votePost = catchAsyncError(async (req, res) => {
-  const { postId } = req.params;
-  const { vote } = req.query;
-  const userId = (req.user as JwtPayload)._id;
-
-  const voteType = ["upvote", "downvote"];
-
-  if (!postId || !vote || !voteType.includes(vote as string)) {
-    return sendResponse(res, {
-      success: false,
-      statusCode: 400,
-      message: "Invalid request",
-      data: null,
-    });
-  }
-
-  const result = await postService.votePost(
-    postId,
-    userId,
-    vote as "upvote" | "downvote"
-  );
-  sendResponse(res, {
-    success: true,
-    statusCode: 200,
-    message: "post voted successfully",
-    data: result,
-  });
-});
-
 export const postController = {
   createPost,
   uploadPostImage,
   deletePost,
   getAllPosts,
-  votePost,
   getPostById,
 };

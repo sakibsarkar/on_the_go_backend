@@ -25,8 +25,8 @@ const initiatePayment = (payload, userId) => __awaiter(void 0, void 0, void 0, f
     const PT = jsonwebtoken_1.default.sign(paymentTokenObj, process.env.SIGNATURE_KEY, {
         expiresIn: "1m",
     });
-    // const url = "https://onthego-backend.vercel.app/api/v1"
-    const url = "http://localhost:5000/api/v1";
+    const url = "https://onthego-backend.vercel.app/api/v1";
+    // const url = "http://localhost:5000/api/v1";
     const response = yield axios_1.default.post(`${process.env.PAYMENT_URL}`, {
         store_id: process.env.STORE_ID,
         signature_key: process.env.SIGNATURE_KEY,

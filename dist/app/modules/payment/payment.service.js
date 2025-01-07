@@ -28,14 +28,14 @@ const createPayment = (amount, transactionId, userId) => __awaiter(void 0, void 
     });
     const filePath = (0, path_1.join)(__dirname, "../../templates/success.html");
     let file = (0, fs_1.readFileSync)(filePath, "utf-8");
-    file = file.replace("{{link}}", "https://aqua-clean.vercel.app/");
+    file = file.replace("{{link}}", "https://onthego-frontend.vercel.app/");
     return file;
 });
 exports.createPayment = createPayment;
 const failedPayment = () => __awaiter(void 0, void 0, void 0, function* () {
     const filePath = (0, path_1.join)(__dirname, "../../templates/error.html");
     let file = (0, fs_1.readFileSync)(filePath, "utf-8");
-    file = file.replace("{{link}}", "https://aqua-clean.vercel.app/");
+    file = file.replace("{{link}}", "https://onthego-frontend.vercel.app/");
     return file;
 });
 exports.failedPayment = failedPayment;
