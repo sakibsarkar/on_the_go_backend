@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import { IAnyObject } from "../../interface/error";
+import Group from "../group/group.model";
+import GroupMember from "../groupMember/gorupMember.model";
 import Reaction from "../reaction/reaction.model";
 import { TUser } from "../user/user.interface";
 import { IPost } from "./post.interface";
@@ -13,8 +15,11 @@ const createPost = async (payload: IPost) => {
   return result;
 };
 
-const getAllPosts = async (query: IAnyObject, user: TUser | null) => {
-  let model = Post.find().populate("user").populate("categories");
+const getAllPosts = async (query: IAnyObject, user: TUser) => {
+  let model = Post.find()
+    .populate("user")
+    .populate("categories")
+    .populate("group");
   if (query.categories) {
     const ids = query.categories
       .split(",")
@@ -29,6 +34,28 @@ const getAllPosts = async (query: IAnyObject, user: TUser | null) => {
     model = model.find({ premium: false });
   }
   delete query.premium;
+
+  if (query.group) {
+    const groupIds = query.group
+      .split(",")
+      .map((id: string) => new mongoose.Types.ObjectId(id));
+    for (const groupId of groupIds) {
+      const group = await Group.findById(groupId).select("privacy");
+      if (!group) {
+        throw new AppError(404, "Group not found");
+      }
+
+      if (group.privacy == "private") {
+        const isMember = await GroupMember.findOne({
+          group: groupId,
+          user: user._id,
+        });
+        if (!isMember) {
+          throw new AppError(400, "You are not a member of this group");
+        }
+      }
+    }
+  }
 
   const queryModel = new QueryBuilder(model, query)
     .fields()
@@ -69,7 +96,7 @@ const getPostById = async (id: string) => {
 };
 
 const updatePost = async (id: string, payload: IPost, user: string) => {
-  const isExists = await Post.findById(id);
+  const isExists = await Post.findById(id).populate("group");
   if (!isExists) {
     throw new AppError(404, "Post not found");
   }

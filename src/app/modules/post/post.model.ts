@@ -19,6 +19,11 @@ const PostSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    group: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+      required: false,
+    },
     reactionCount: {
       type: Number,
       default: 0,

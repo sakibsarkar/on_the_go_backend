@@ -4,6 +4,8 @@ import authRoute from "../modules/auth/auth.route";
 import categoryRoute from "../modules/category/category.route";
 import commentRoute from "../modules/comments/comment.route";
 import followerRoute from "../modules/follower/follower.route";
+import groupRoute from "../modules/group/group.route";
+import groupMemberRoute from "../modules/groupMember/groupMember.route";
 import paymentRoute from "../modules/payment/payment.route";
 import postRoute from "../modules/post/post.route";
 import reactionRoute from "../modules/reaction/raction.route";
@@ -29,6 +31,14 @@ const moduleRoute = [
   {
     path: "/post",
     route: postRoute,
+  },
+  {
+    path: "/group",
+    route: groupRoute,
+  },
+  {
+    path: "/group-member",
+    route: groupMemberRoute,
   },
   {
     path: "/reaction",

@@ -34,7 +34,7 @@ export const uploadPostImage = catchAsyncError(async (req, res) => {
 });
 
 const createPost = catchAsyncError(async (req, res) => {
-  const { content, categories, images, premium } = req.body;
+  const { content, categories, images, premium, group } = req.body;
   const user = req.user._id;
 
   if (premium && !req.user.isPremium) {
@@ -53,6 +53,7 @@ const createPost = catchAsyncError(async (req, res) => {
     categories,
     premium: Boolean(premium),
     user: user as string,
+    group,
   } as IPost;
   const result = await postService.createPost(payload);
 
@@ -78,7 +79,7 @@ const deletePost = catchAsyncError(async (req, res) => {
 
 const getAllPosts = catchAsyncError(async (req, res) => {
   const query = req.query;
-  const user = req.user as TUser | null;
+  const user = req.user as TUser;
   const { result, totalDoc } = await postService.getAllPosts(query, user);
 
   sendResponse(res, {
