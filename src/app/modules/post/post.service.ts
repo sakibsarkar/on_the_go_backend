@@ -88,6 +88,44 @@ const getAllPosts = async (query: IAnyObject, user: TUser) => {
   return { result: postObjs, totalDoc: totalDoc.totalCount };
 };
 
+const getUserProfilePostByUserId = async (
+  query: IAnyObject,
+  userId: string
+) => {
+  const model = Post.find({ user: userId, group: { $exists: false } })
+    .populate("user")
+    .populate("categories");
+  const queryModel = new QueryBuilder(model, query)
+    .fields()
+    .paginate()
+    .sort()
+    .filter()
+    .search(["title", "content"]);
+
+  const totalDoc = await queryModel.count();
+  const result = await queryModel.modelQuery;
+
+  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const postObjs: any[] = result.map((result) => result.toObject());
+
+  for (let i = 0; i < postObjs.length; i++) {
+    const post = postObjs[i];
+    const reacted = await Reaction.findOne({
+      // @ts-ignore
+      post: post._id as string,
+      user: userId,
+    });
+
+    postObjs[i] = {
+      ...post,
+      reacted,
+    };
+  }
+
+  return { result: postObjs, totalDoc: totalDoc.totalCount };
+};
+
 const getPostById = async (id: string) => {
   const result = await Post.findById(id)
     .populate("user")
@@ -140,7 +178,7 @@ const postService = {
   createPost,
   deletePost,
   getAllPosts,
-
+  getUserProfilePostByUserId,
   getPostById,
   updatePost,
 };

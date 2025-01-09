@@ -8,4 +8,5 @@ exports.postValidationSchema = zod_1.z.object({
     images: zod_1.z.array(zod_1.z.string().url("Each image must be a valid URL")),
     categories: zod_1.z.array(zod_1.z.string()),
     isPremium: zod_1.z.boolean().optional(),
+    group: zod_1.z.string().optional(),
 });

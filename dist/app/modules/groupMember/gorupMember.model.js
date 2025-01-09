@@ -24,41 +24,23 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const PostSchema = new mongoose_1.default.Schema({
-    content: {
-        type: String,
-        required: true,
-    },
-    images: {
-        type: [String],
-    },
-    categories: {
-        type: [mongoose_1.Types.ObjectId],
-        required: true,
-        ref: "Category",
-    },
+const groupMemberSchema = new mongoose_1.default.Schema({
     user: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "User",
+        type: mongoose_1.Types.ObjectId,
         required: true,
+        ref: "User",
     },
     group: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
+        type: mongoose_1.Types.ObjectId,
+        required: true,
         ref: "Group",
-        required: false,
     },
-    reactionCount: {
-        type: Number,
-        default: 0,
-    },
-    commentCount: {
-        type: Number,
-        default: 0,
-    },
-    premium: {
-        type: Boolean,
-        default: false,
+    role: {
+        type: String,
+        enum: ["owner", "member", "admin"],
+        default: "member",
+        required: true,
     },
 }, { timestamps: true });
-const Post = mongoose_1.default.model("Post", PostSchema);
-exports.default = Post;
+const GroupMember = mongoose_1.default.model("GroupMember", groupMemberSchema);
+exports.default = GroupMember;

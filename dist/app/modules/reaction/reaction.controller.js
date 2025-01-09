@@ -12,25 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const cors_1 = __importDefault(require("cors"));
-const express_1 = __importDefault(require("express"));
-const morgan_1 = __importDefault(require("morgan"));
-const index_1 = __importDefault(require("../src/app/routes/index"));
-const error_1 = __importDefault(require("./app/middlewares/error"));
-const not_found_1 = require("./app/middlewares/not-found");
-const app = (0, express_1.default)();
-// Middlewares
-app.use((0, cors_1.default)({
-    origin: "*",
+const catchAsyncError_1 = require("../../../utils/catchAsyncError");
+const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
+const reaction_service_1 = __importDefault(require("./reaction.service"));
+const changeReactionByPostId = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { postId, reactionId } = req.body;
+    const result = yield reaction_service_1.default.changeReactionByPostIdService(user._id, postId, reactionId);
+    (0, sendResponse_1.default)(res, {
+        data: result,
+        success: true,
+        message: "reaction changed successfully",
+    });
 }));
-app.use(express_1.default.json());
-app.use((0, morgan_1.default)("dev"));
-app.use("/api/v1", index_1.default);
-app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // postController.getAllPosts(req, res);
-    res.send("Hello from server");
-}));
-// 404 Handler
-app.use(not_found_1.notFound);
-app.use(error_1.default);
-exports.default = app;
+const reactionController = {
+    changeReactionByPostId,
+};
+exports.default = reactionController;

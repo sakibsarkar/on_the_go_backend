@@ -2,9 +2,11 @@ import { JwtPayload } from "jsonwebtoken";
 import { catchAsyncError } from "../../../utils/catchAsyncError";
 import sendResponse from "../../../utils/sendResponse";
 import QueryBuilder from "../../builder/QueryBuilder";
+import AppError from "../../errors/AppError";
+import Follower from "../follower/follower.model";
 import { IPaymentPayload } from "../payment/payment.interface";
 import { initiatePayment } from "../payment/payment.utils";
-import Reaction from "../post/post.model";
+import { default as Post, default as Reaction } from "../post/post.model";
 import User from "./user.model";
 
 export const updateUserProfileImage = catchAsyncError(async (req, res) => {
@@ -145,3 +147,39 @@ export const generateVerifyAccountPaymentUrl = catchAsyncError(
     });
   }
 );
+
+export const getUserProfileData = catchAsyncError(async (req, res) => {
+  const user = req.user as JwtPayload; // the user who requested for data
+  const userId = req.params.userId; // the user whose data is requested
+
+  const profile = await User.findOne({ _id: userId }).select("-auth");
+
+  if (!profile) {
+    throw new AppError(404, "User not found");
+  }
+
+  const isFollowing = await Follower.findOne({
+    user: userId,
+    follower: user._id,
+  });
+
+  const totalPost = await Post.countDocuments({
+    user: userId,
+    group: { $exists: false },
+  });
+
+  const totalFollower = await Follower.countDocuments({ user: userId });
+
+  const reuslt = {
+    ...profile.toObject(),
+    isFollowing: isFollowing ? true : false,
+    totalPost,
+    totalFollower,
+  };
+
+  sendResponse(res, {
+    data: reuslt,
+    success: true,
+    message: "successfully get user profile data",
+  });
+});

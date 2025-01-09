@@ -57,8 +57,10 @@ const getGroupSuggestions = async (userId: string, query: IAnyObject) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
   const skip = (page - 1) * limit;
+  const searchTerm = query.searchTerm?.trim(); // Extract and trim the search term if provided
 
-  const pipeLine = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pipeLine: any[] = [
     {
       $lookup: {
         from: "groupmembers",
@@ -78,6 +80,19 @@ const getGroupSuggestions = async (userId: string, query: IAnyObject) => {
     },
   ];
 
+  // Add search condition if searchTerm is provided
+  if (searchTerm) {
+    pipeLine.push({
+      $match: {
+        $or: [
+          { name: { $regex: searchTerm, $options: "i" } }, // Case-insensitive search on name
+          { description: { $regex: searchTerm, $options: "i" } }, // Case-insensitive search on description
+        ],
+      },
+    });
+  }
+
+  // Fetch the results with sorting, pagination, and projection
   const result = await Group.aggregate([
     ...pipeLine,
     {
@@ -95,13 +110,15 @@ const getGroupSuggestions = async (userId: string, query: IAnyObject) => {
       $project: {
         name: 1,
         description: 1,
+        createdAt: 1,
         image: 1,
         privacy: 1,
         memberCount: 1,
-        // groupMembers: 0,
       },
     },
   ]);
+
+  // Fetch the total count of documents
   const totalCountResult = await Group.aggregate([
     ...pipeLine,
     {
@@ -110,6 +127,7 @@ const getGroupSuggestions = async (userId: string, query: IAnyObject) => {
   ]);
   const totalCount =
     totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
+
   return { result, totalCount };
 };
 

@@ -109,7 +109,10 @@ exports.isCapableForPremium = (0, catchAsyncError_1.catchAsyncError)((req, res) 
 }));
 exports.generateVerifyAccountPaymentUrl = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
-    const post = yield post_model_1.default.findOne({ user: user, upvoteCount: { $gt: 0 } });
+    const post = yield post_model_1.default.findOne({
+        user: user,
+        upvoteCount: { $gt: 0 },
+    });
     if (!post) {
         return (0, sendResponse_1.default)(res, {
             message: "Not capled for premium",

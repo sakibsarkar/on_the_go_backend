@@ -16,49 +16,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
+const group_model_1 = __importDefault(require("../group/group.model"));
+const gorupMember_model_1 = __importDefault(require("../groupMember/gorupMember.model"));
+const reaction_model_1 = __importDefault(require("../reaction/reaction.model"));
 const post_model_1 = __importDefault(require("./post.model"));
 const createPost = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield post_model_1.default.create(payload);
     return result;
 });
-const votePost = (postId, userId, vote) => __awaiter(void 0, void 0, void 0, function* () {
-    const post = yield post_model_1.default.findById(postId);
-    if (!post) {
-        throw new Error("Post not found");
-    }
-    const userObjectId = new mongoose_1.default.Types.ObjectId(userId);
-    if (vote === "upvote") {
-        // @ts-ignore
-        const isAlreadyUpvoted = post.upvotes.includes(userObjectId);
-        if (isAlreadyUpvoted) {
-            post.upvotes.pull(userObjectId);
-        }
-        else {
-            post.upvotes.addToSet(userObjectId);
-            post.downvotes.pull(userObjectId);
-        }
-    }
-    else {
-        // @ts-ignore
-        const isAlreadyDownvoted = post.downvotes.includes(userObjectId);
-        if (isAlreadyDownvoted) {
-            post.downvotes.pull(userObjectId);
-        }
-        else {
-            post.downvotes.addToSet(userObjectId);
-            post.upvotes.pull(userObjectId);
-        }
-    }
-    // Update the upvoteCount and downvoteCount after updating the arrays
-    post.upvoteCount = post.upvotes.length;
-    post.downvoteCount = post.downvotes.length;
-    // Save the post after updating counts
-    yield post.save();
-    const result = yield post.save();
-    return result;
-});
 const getAllPosts = (query, user) => __awaiter(void 0, void 0, void 0, function* () {
-    let model = post_model_1.default.find().populate("user").populate("categories");
+    let model = post_model_1.default.find()
+        .populate("user")
+        .populate("categories")
+        .populate("group");
     if (query.categories) {
         const ids = query.categories
             .split(",")
@@ -73,6 +43,26 @@ const getAllPosts = (query, user) => __awaiter(void 0, void 0, void 0, function*
         model = model.find({ premium: false });
     }
     delete query.premium;
+    if (query.group) {
+        const groupIds = query.group
+            .split(",")
+            .map((id) => new mongoose_1.default.Types.ObjectId(id));
+        for (const groupId of groupIds) {
+            const group = yield group_model_1.default.findById(groupId).select("privacy");
+            if (!group) {
+                throw new AppError_1.default(404, "Group not found");
+            }
+            if (group.privacy == "private") {
+                const isMember = yield gorupMember_model_1.default.findOne({
+                    group: groupId,
+                    user: user._id,
+                });
+                if (!isMember) {
+                    throw new AppError_1.default(400, "You are not a member of this group");
+                }
+            }
+        }
+    }
     const queryModel = new QueryBuilder_1.default(model, query)
         .fields()
         .paginate()
@@ -81,7 +71,19 @@ const getAllPosts = (query, user) => __awaiter(void 0, void 0, void 0, function*
         .search(["title", "content"]);
     const totalDoc = yield queryModel.count();
     const result = yield queryModel.modelQuery;
-    return { result, totalDoc: totalDoc.totalCount };
+    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const postObjs = result.map((result) => result.toObject());
+    for (let i = 0; i < postObjs.length; i++) {
+        const post = postObjs[i];
+        const reacted = yield reaction_model_1.default.findOne({
+            // @ts-ignore
+            post: post._id,
+            user: user === null || user === void 0 ? void 0 : user._id,
+        });
+        postObjs[i] = Object.assign(Object.assign({}, post), { reacted });
+    }
+    return { result: postObjs, totalDoc: totalDoc.totalCount };
 });
 const getPostById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield post_model_1.default.findById(id)
@@ -90,7 +92,7 @@ const getPostById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return result;
 });
 const updatePost = (id, payload, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const isExists = yield post_model_1.default.findById(id);
+    const isExists = yield post_model_1.default.findById(id).populate("group");
     if (!isExists) {
         throw new AppError_1.default(404, "Post not found");
     }
@@ -125,7 +127,6 @@ const postService = {
     createPost,
     deletePost,
     getAllPosts,
-    votePost,
     getPostById,
     updatePost,
 };

@@ -24,41 +24,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const PostSchema = new mongoose_1.default.Schema({
-    content: {
+const ReactionSchema = new mongoose_1.default.Schema({
+    reactionId: {
         type: String,
+        enum: ["like", "love", "haha", "wow", "sad", "angry"],
         required: true,
     },
-    images: {
-        type: [String],
-    },
-    categories: {
-        type: [mongoose_1.Types.ObjectId],
-        required: true,
-        ref: "Category",
+    post: {
+        type: mongoose_1.Types.ObjectId,
+        ref: "Post",
     },
     user: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
+        type: mongoose_1.Types.ObjectId,
         ref: "User",
-        required: true,
-    },
-    group: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "Group",
-        required: false,
-    },
-    reactionCount: {
-        type: Number,
-        default: 0,
-    },
-    commentCount: {
-        type: Number,
-        default: 0,
-    },
-    premium: {
-        type: Boolean,
-        default: false,
     },
 }, { timestamps: true });
-const Post = mongoose_1.default.model("Post", PostSchema);
-exports.default = Post;
+const Reaction = mongoose_1.default.model("Reaction", ReactionSchema);
+exports.default = Reaction;

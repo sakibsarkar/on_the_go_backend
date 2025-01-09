@@ -24,7 +24,8 @@ router.post(
   postController.uploadPostImage
 );
 router.get("/get", isAuthenticatedUser, postController.getAllPosts);
-router.get("/get/:id", postController.getPostById);
+router.get("/get/profile/:userId", isAuthenticatedUser, postController.getUserProfilePostByUserId);
+router.get("/get/:id", isAuthenticatedUser, postController.getPostById);
 const postRoute = router;
 
 export default postRoute;

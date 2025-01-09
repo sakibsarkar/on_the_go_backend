@@ -4,6 +4,7 @@ import { authorizeRoles, isAuthenticatedUser } from "../../middlewares/auth";
 import {
   generateVerifyAccountPaymentUrl,
   getAllUser,
+  getUserProfileData,
   isCapableForPremium,
   updateUserInfo,
   updateUserProfileImage,
@@ -18,6 +19,9 @@ router.post(
   isAuthenticatedUser,
   generateVerifyAccountPaymentUrl
 );
+
+router.get("/profile/:userId", isAuthenticatedUser, getUserProfileData);
+
 router.put(
   "/update-profile-image",
   isAuthenticatedUser,

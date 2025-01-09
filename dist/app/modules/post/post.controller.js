@@ -43,7 +43,7 @@ exports.uploadPostImage = (0, catchAsyncError_1.catchAsyncError)((req, res) => _
     });
 }));
 const createPost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { content, categories, images, premium } = req.body;
+    const { content, categories, images, premium, group } = req.body;
     const user = req.user._id;
     if (premium && !req.user.isPremium) {
         (0, sendResponse_1.default)(res, {
@@ -60,6 +60,7 @@ const createPost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaite
         categories,
         premium: Boolean(premium),
         user: user,
+        group,
     };
     const result = yield post_service_1.default.createPost(payload);
     (0, sendResponse_1.default)(res, {
@@ -102,32 +103,10 @@ const getPostById = (0, catchAsyncError_1.catchAsyncError)((req, res) => __await
         data: result,
     });
 }));
-const votePost = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { postId } = req.params;
-    const { vote } = req.query;
-    const userId = req.user._id;
-    const voteType = ["upvote", "downvote"];
-    if (!postId || !vote || !voteType.includes(vote)) {
-        return (0, sendResponse_1.default)(res, {
-            success: false,
-            statusCode: 400,
-            message: "Invalid request",
-            data: null,
-        });
-    }
-    const result = yield post_service_1.default.votePost(postId, userId, vote);
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: 200,
-        message: "post voted successfully",
-        data: result,
-    });
-}));
 exports.postController = {
     createPost,
     uploadPostImage: exports.uploadPostImage,
     deletePost,
     getAllPosts,
-    votePost,
     getPostById,
 };

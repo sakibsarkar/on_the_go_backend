@@ -8,8 +8,11 @@ const auth_route_1 = __importDefault(require("../modules/auth/auth.route"));
 const category_route_1 = __importDefault(require("../modules/category/category.route"));
 const comment_route_1 = __importDefault(require("../modules/comments/comment.route"));
 const follower_route_1 = __importDefault(require("../modules/follower/follower.route"));
+const group_route_1 = __importDefault(require("../modules/group/group.route"));
+const groupMember_route_1 = __importDefault(require("../modules/groupMember/groupMember.route"));
 const payment_route_1 = __importDefault(require("../modules/payment/payment.route"));
 const post_route_1 = __importDefault(require("../modules/post/post.route"));
+const raction_route_1 = __importDefault(require("../modules/reaction/raction.route"));
 const statistics_route_1 = __importDefault(require("../modules/statistics/statistics.route"));
 const user_route_1 = __importDefault(require("../modules/user/user.route"));
 // import userRoutes from "../modules/user/user.route";
@@ -30,6 +33,18 @@ const moduleRoute = [
     {
         path: "/post",
         route: post_route_1.default,
+    },
+    {
+        path: "/group",
+        route: group_route_1.default,
+    },
+    {
+        path: "/group-member",
+        route: groupMember_route_1.default,
+    },
+    {
+        path: "/reaction",
+        route: raction_route_1.default,
     },
     {
         path: "/category",
