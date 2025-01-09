@@ -1,4 +1,6 @@
+import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
+import { IAnyObject } from "../../interface/error";
 import User from "../user/user.model";
 import { IFollower } from "./follower.interface";
 import Follower from "./follower.model";
@@ -58,20 +60,28 @@ const deleteFollower = async (payload: IFollower) => {
   return result;
 };
 
-const getFollwers = async (user: string) => {
-  const result = await Follower.find({ user: user })
-    .populate("follower")
+const getFollwers = async (user: string, query: IAnyObject) => {
+  const model = Follower.find({ user: user })
     .populate("user")
+    .populate("follower")
     .sort("-createdAt");
-  return result;
+  const queryModel = new QueryBuilder(model, query).paginate().sort();
+
+  const totalDoc = await queryModel.count();
+  const result = await queryModel.modelQuery;
+  return { result, totalDoc: totalDoc.totalCount };
 };
 
-const getFollowingList = async (user: string) => {
-  const result = await Follower.find({ follower: user })
+const getFollowingList = async (user: string, query: IAnyObject) => {
+  const model = Follower.find({ follower: user })
     .populate("user")
     .populate("follower")
     .sort("-createdAt");
-  return result;
+  const queryModel = new QueryBuilder(model, query).paginate().sort();
+
+  const totalDoc = await queryModel.count();
+  const result = await queryModel.modelQuery;
+  return { result, totalDoc: totalDoc.totalCount };
 };
 
 export const followerService = {

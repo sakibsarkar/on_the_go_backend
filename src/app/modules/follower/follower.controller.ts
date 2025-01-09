@@ -38,23 +38,31 @@ const deleteFollowerController = catchAsyncError(async (req, res) => {
 
 const getFollwers = catchAsyncError(async (req, res) => {
   const user = req.user._id;
-  const result = await followerService.getFollwers(user);
+  const { result, totalDoc } = await followerService.getFollwers(
+    user,
+    req.query
+  );
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Data retrive successfully",
     data: result,
+    totalDoc,
   });
 });
 
 const getFollwing = catchAsyncError(async (req, res) => {
   const user = req.user._id;
-  const result = await followerService.getFollowingList(user);
+  const { result, totalDoc } = await followerService.getFollowingList(
+    user,
+    req.query
+  );
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Data retrive successfully",
     data: result,
+    totalDoc,
   });
 });
 
