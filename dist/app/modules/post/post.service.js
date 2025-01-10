@@ -85,6 +85,32 @@ const getAllPosts = (query, user) => __awaiter(void 0, void 0, void 0, function*
     }
     return { result: postObjs, totalDoc: totalDoc.totalCount };
 });
+const getUserProfilePostByUserId = (query, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const model = post_model_1.default.find({ user: userId, group: { $exists: false } })
+        .populate("user")
+        .populate("categories");
+    const queryModel = new QueryBuilder_1.default(model, query)
+        .fields()
+        .paginate()
+        .sort()
+        .filter()
+        .search(["title", "content"]);
+    const totalDoc = yield queryModel.count();
+    const result = yield queryModel.modelQuery;
+    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const postObjs = result.map((result) => result.toObject());
+    for (let i = 0; i < postObjs.length; i++) {
+        const post = postObjs[i];
+        const reacted = yield reaction_model_1.default.findOne({
+            // @ts-ignore
+            post: post._id,
+            user: userId,
+        });
+        postObjs[i] = Object.assign(Object.assign({}, post), { reacted });
+    }
+    return { result: postObjs, totalDoc: totalDoc.totalCount };
+});
 const getPostById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield post_model_1.default.findById(id)
         .populate("user")
@@ -127,6 +153,7 @@ const postService = {
     createPost,
     deletePost,
     getAllPosts,
+    getUserProfilePostByUserId,
     getPostById,
     updatePost,
 };

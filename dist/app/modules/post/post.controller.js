@@ -93,6 +93,18 @@ const getAllPosts = (0, catchAsyncError_1.catchAsyncError)((req, res) => __await
         totalDoc,
     });
 }));
+const getUserProfilePostByUserId = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
+    const userId = req.params.userId;
+    const { result, totalDoc } = yield post_service_1.default.getUserProfilePostByUserId(query, userId);
+    (0, sendResponse_1.default)(res, {
+        success: false,
+        statusCode: 200,
+        message: "No Data Found",
+        data: result,
+        totalDoc,
+    });
+}));
 const getPostById = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield post_service_1.default.getPostById(id);
@@ -109,4 +121,5 @@ exports.postController = {
     deletePost,
     getAllPosts,
     getPostById,
+    getUserProfilePostByUserId,
 };

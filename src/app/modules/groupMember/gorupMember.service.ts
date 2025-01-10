@@ -17,6 +17,9 @@ const joinGroup = async (userId: string, groupId: string) => {
     group: groupId,
     role: "member",
   });
+
+  await Group.updateOne({ _id: groupId }, { $inc: { memberCount: 1 } });
+
   return result;
 };
 
@@ -65,7 +68,6 @@ const getGroupMembers = async (
 
   return { result, totalDoc: totalDoc.totalCount };
 };
-
 
 const groupMemberService = {
   joinGroup,

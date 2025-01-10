@@ -53,11 +53,43 @@ const getUsersGroups = catchAsyncError(async (req, res) => {
   });
 });
 
+const getGroupMembersByGroupId = catchAsyncError(async (req, res) => {
+  const { result, totalDoc } = await groupService.getGroupMembersByGroupId(
+    req.params.groupId,
+    req.user._id,
+    req.query
+  );
+
+  sendResponse(res, {
+    message: "group members retrieved successfully",
+    success: true,
+    data: result,
+    statusCode: 200,
+    totalDoc,
+  });
+});
+
+const updateGroupById = catchAsyncError(async (req, res) => {
+  const result = await groupService.updateGroupById(
+    req.params.groupId,
+    req.user._id,
+    req.body
+  );
+  sendResponse(res, {
+    message: "group updated successfully",
+    success: true,
+    data: result,
+    statusCode: 200,
+  });
+});
+
 const groupController = {
   createGroup,
   getGroupSuggestions,
   getUsersGroups,
   getGroupDetailsById,
+  getGroupMembersByGroupId,
+  updateGroupById,
 };
 
 export default groupController;

@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateVerifyAccountPaymentUrl = exports.isCapableForPremium = exports.getAllUser = exports.updateUserInfo = exports.updateUserProfileImage = void 0;
+exports.getUserProfileData = exports.generateVerifyAccountPaymentUrl = exports.isCapableForPremium = exports.getAllUser = exports.updateUserInfo = exports.updateUserProfileImage = void 0;
 const catchAsyncError_1 = require("../../../utils/catchAsyncError");
 const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
+const follower_model_1 = __importDefault(require("../follower/follower.model"));
 const payment_utils_1 = require("../payment/payment.utils");
 const post_model_1 = __importDefault(require("../post/post.model"));
 const user_model_1 = __importDefault(require("./user.model"));
@@ -134,5 +136,29 @@ exports.generateVerifyAccountPaymentUrl = (0, catchAsyncError_1.catchAsyncError)
         data: result,
         success: true,
         message: "successfully get payment url",
+    });
+}));
+exports.getUserProfileData = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user; // the user who requested for data
+    const userId = req.params.userId; // the user whose data is requested
+    const profile = yield user_model_1.default.findOne({ _id: userId }).select("-auth");
+    if (!profile) {
+        throw new AppError_1.default(404, "User not found");
+    }
+    const isFollowing = yield follower_model_1.default.findOne({
+        user: userId,
+        follower: user._id,
+    });
+    const totalPost = yield post_model_1.default.countDocuments({
+        user: userId,
+        group: { $exists: false },
+    });
+    const totalFollower = yield follower_model_1.default.countDocuments({ user: userId });
+    const reuslt = Object.assign(Object.assign({}, profile.toObject()), { isFollowing: isFollowing ? true : false, totalPost,
+        totalFollower });
+    (0, sendResponse_1.default)(res, {
+        data: reuslt,
+        success: true,
+        message: "successfully get user profile data",
     });
 }));

@@ -56,9 +56,12 @@ const getGroupDetailsById = (groupId, userId) => __awaiter(void 0, void 0, void 
     };
 });
 const getGroupSuggestions = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
     const skip = (page - 1) * limit;
+    const searchTerm = (_a = query.searchTerm) === null || _a === void 0 ? void 0 : _a.trim(); // Extract and trim the search term if provided
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pipeLine = [
         {
             $lookup: {
@@ -78,6 +81,18 @@ const getGroupSuggestions = (userId, query) => __awaiter(void 0, void 0, void 0,
             },
         },
     ];
+    // Add search condition if searchTerm is provided
+    if (searchTerm) {
+        pipeLine.push({
+            $match: {
+                $or: [
+                    { name: { $regex: searchTerm, $options: "i" } }, // Case-insensitive search on name
+                    { description: { $regex: searchTerm, $options: "i" } }, // Case-insensitive search on description
+                ],
+            },
+        });
+    }
+    // Fetch the results with sorting, pagination, and projection
     const result = yield group_model_1.default.aggregate([
         ...pipeLine,
         {
@@ -95,13 +110,14 @@ const getGroupSuggestions = (userId, query) => __awaiter(void 0, void 0, void 0,
             $project: {
                 name: 1,
                 description: 1,
+                createdAt: 1,
                 image: 1,
                 privacy: 1,
                 memberCount: 1,
-                // groupMembers: 0,
             },
         },
     ]);
+    // Fetch the total count of documents
     const totalCountResult = yield group_model_1.default.aggregate([
         ...pipeLine,
         {

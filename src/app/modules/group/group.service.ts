@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import { IAnyObject } from "../../interface/error";
 import GroupMember from "../groupMember/gorupMember.model";
@@ -185,9 +186,86 @@ const getUsersGroups = async (userId: string, query: IAnyObject) => {
   return { result: modifiedResult, totalCount };
 };
 
+const getGroupMembersByGroupId = async (
+  groupId: string,
+  userId: string,
+  query: IAnyObject
+) => {
+  const isGroupExist = await Group.findById(groupId);
+
+  if (!isGroupExist) {
+    throw new AppError(404, "Group not found");
+  }
+
+  if (isGroupExist.privacy == "private") {
+    const isMember = await GroupMember.findOne({
+      group: groupId,
+      user: userId,
+    });
+
+    if (!isMember) {
+      throw new AppError(
+        400,
+        "You are not a member of this group and the group is private"
+      );
+    }
+  }
+
+  const model = GroupMember.find({ group: groupId }).populate("user");
+  const queryBuilder = new QueryBuilder(model, query)
+    .paginate()
+    .sort()
+    .filter();
+
+  const result = await queryBuilder.modelQuery;
+  const totalDoc = await queryBuilder.count();
+
+  return { result, totalDoc: totalDoc.totalCount };
+};
+
+const updateGroupById = async (
+  groupId: string,
+  userId: string,
+  data: Partial<IGroup>
+) => {
+  const isGroupExist = await Group.findById(groupId);
+  ["owner", "memberCount"].forEach((key) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    delete data[key];
+  });
+
+  if (!isGroupExist) {
+    throw new AppError(404, "Group not found");
+  }
+
+  const member = await GroupMember.findOne({
+    group: groupId,
+    user: userId,
+  });
+
+  if (!member) {
+    throw new AppError(400, "You are not allowed to update this group");
+  }
+
+  const validRoles = ["owner", "admin"];
+
+  if (!validRoles.includes(member.role)) {
+    throw new AppError(400, "You are not allowed to update this group");
+  }
+
+  const result = await Group.findByIdAndUpdate(groupId, data, {
+    new: true,
+    runValidators: true,
+  });
+  return result;
+};
+
 export const groupService = {
   createGroup,
   getGroupSuggestions,
   getUsersGroups,
   getGroupDetailsById,
+  getGroupMembersByGroupId,
+  updateGroupById,
 };

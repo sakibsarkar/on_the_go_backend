@@ -48,22 +48,24 @@ const deleteFollowerController = (0, catchAsyncError_1.catchAsyncError)((req, re
 }));
 const getFollwers = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user._id;
-    const result = yield follower_service_1.followerService.getFollwers(user);
+    const { result, totalDoc } = yield follower_service_1.followerService.getFollwers(user, req.query);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: 200,
         message: "Data retrive successfully",
         data: result,
+        totalDoc,
     });
 }));
 const getFollwing = (0, catchAsyncError_1.catchAsyncError)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user._id;
-    const result = yield follower_service_1.followerService.getFollowingList(user);
+    const { result, totalDoc } = yield follower_service_1.followerService.getFollowingList(user, req.query);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: 200,
         message: "Data retrive successfully",
         data: result,
+        totalDoc,
     });
 }));
 exports.followerController = {

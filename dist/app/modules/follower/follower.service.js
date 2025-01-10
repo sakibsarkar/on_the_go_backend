@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.followerService = void 0;
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const user_model_1 = __importDefault(require("../user/user.model"));
 const follower_model_1 = __importDefault(require("./follower.model"));
@@ -63,19 +64,25 @@ const deleteFollower = (payload) => __awaiter(void 0, void 0, void 0, function* 
     });
     return result;
 });
-const getFollwers = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield follower_model_1.default.find({ user: user })
-        .populate("follower")
+const getFollwers = (user, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const model = follower_model_1.default.find({ user: user })
         .populate("user")
+        .populate("follower")
         .sort("-createdAt");
-    return result;
+    const queryModel = new QueryBuilder_1.default(model, query).paginate().sort();
+    const totalDoc = yield queryModel.count();
+    const result = yield queryModel.modelQuery;
+    return { result, totalDoc: totalDoc.totalCount };
 });
-const getFollowingList = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield follower_model_1.default.find({ follower: user })
+const getFollowingList = (user, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const model = follower_model_1.default.find({ follower: user })
         .populate("user")
         .populate("follower")
         .sort("-createdAt");
-    return result;
+    const queryModel = new QueryBuilder_1.default(model, query).paginate().sort();
+    const totalDoc = yield queryModel.count();
+    const result = yield queryModel.modelQuery;
+    return { result, totalDoc: totalDoc.totalCount };
 });
 exports.followerService = {
     createFollower,
