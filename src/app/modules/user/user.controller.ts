@@ -6,7 +6,7 @@ import AppError from "../../errors/AppError";
 import Follower from "../follower/follower.model";
 import { IPaymentPayload } from "../payment/payment.interface";
 import { initiatePayment } from "../payment/payment.utils";
-import { default as Post, default as Reaction } from "../post/post.model";
+import Post from "../post/post.model";
 import User from "./user.model";
 
 export const updateUserProfileImage = catchAsyncError(async (req, res) => {
@@ -104,7 +104,7 @@ export const getAllUser = catchAsyncError(async (req, res) => {
 export const isCapableForPremium = catchAsyncError(async (req, res) => {
   const user = req.user._id;
 
-  const post = await Reaction.findOne({ user: user, upvoteCount: { $gt: 0 } });
+  const post = await Post.findOne({ user: user, reactionCount: { $gt: 0 } });
 
   sendResponse(res, {
     data: post ? true : false,
@@ -116,9 +116,9 @@ export const isCapableForPremium = catchAsyncError(async (req, res) => {
 export const generateVerifyAccountPaymentUrl = catchAsyncError(
   async (req, res) => {
     const user = req.user as JwtPayload;
-    const post = await Reaction.findOne({
+    const post = await Post.findOne({
       user: user,
-      upvoteCount: { $gt: 0 },
+      reactionCount: { $gt: 0 },
     });
     if (!post) {
       return sendResponse(res, {
